@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  name              String
+  email             String    @unique
+  password          String
+  role              String
+  active            Boolean   @default(true)
+  lastLogin         DateTime?
+  resetToken        String?
+  resetTokenExpires DateTime?
+  dayCloses         DayClose[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  @@map("users")
+}
+
+model Party {
+  id               Int       @id @default(autoincrement())
+  partyName        String
+  accountNumber    String    @unique
+  address          String
+  mobile1          String
+  mobile2          String?
+  reference        String?
+  referenceMobile1 String?
+  referenceMobile2 String?
+  loans          Loan[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+
+ 
+
+ 
+ 
