@@ -43,18 +43,18 @@ const initialData = {
     
     admin: {
       projects: [
-     
-        
-      
         {
           name: "Club",
           url: "clubs",
           icon: UsersRound,
         },
+        {
+          name: "Group",
+          url: "groups",
+          icon: UsersRound,
+        },
       
       ],
-
-     
     },
  
   },

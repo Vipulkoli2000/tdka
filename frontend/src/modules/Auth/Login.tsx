@@ -1,17 +1,24 @@
-import { useEffect } from "react"; // Removed useState as it's not needed for isLoading
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { post } from "@/services/apiService";
 import { appName, allowRegistration } from "@/config";
 import { LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 // Type for API error response with field validation errors
 interface ApiErrorResponse {
@@ -23,6 +30,7 @@ interface ApiErrorResponse {
   data?: any;
   message?: string;
 }
+
 // Define expected API response structure for SUCCESS
 interface LoginResponse {
   token: string;
@@ -43,27 +51,24 @@ interface LoginResponse {
   };
 }
 
-type LoginFormInputs = z.infer<typeof loginSchema>;
-
 const loginSchema = z.object({
   email: z.string().email("Invalid email address").min(1, "Email is required"),
-
   password: z.string().min(1, "Password is required"),
 });
+
+type LoginFormInputs = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get setError from useForm
-  const {
-    register,
-    handleSubmit,
-    setError, // <-- Destructure setError
-    formState: { errors },
-    // getValues // Can be useful for debugging
-  } = useForm<LoginFormInputs>({
+  // Initialize form with Shadcn Form
+  const form = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   useEffect(() => {
@@ -94,7 +99,6 @@ const Login = () => {
         localStorage.setItem("memberId", data.user.member.id.toString());
       }
       
-      // queryClient.invalidateQueries(...) // Consider invalidating relevant queries
       navigate("/clubs");
       toast.success("Login successful!");
     },
@@ -111,7 +115,7 @@ const Login = () => {
               
               // Set the error on the specific field if it matches our form fields
               if (typeof fieldName === 'string' && (fieldName === 'email' || fieldName === 'password')) {
-                setError(fieldName as keyof LoginFormInputs, {
+                form.setError(fieldName as keyof LoginFormInputs, {
                   type: 'server',
                   message: fieldError.message
                 });
@@ -137,8 +141,7 @@ const Login = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
-    // Optionally log data being sent: console.log("Submitting:", data);
+  const onSubmit = (data: LoginFormInputs) => {
     loginMutation.mutate(data);
   };
 
@@ -146,83 +149,91 @@ const Login = () => {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-6">
-          {/* Header */}
-          <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Login to your account</h1>
-            <p className="text-sm text-muted-foreground">
-              Enter your credentials to access your {appName} account
-            </p>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-6">
+            {/* Header */}
+            <div className="flex flex-col space-y-2 text-center">
+              <h1 className="text-2xl font-semibold tracking-tight">Login to your account</h1>
+              <p className="text-sm text-muted-foreground">
+                Enter your credentials to access your {appName} account
+              </p>
+            </div>
+
+            {/* Email Field */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="relative pb-3">
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="m@example.com"
+                      {...field}
+                      required
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <FormMessage className="absolute -bottom-1 left-0 text-xs" />
+                </FormItem>
+              )}
+            />
+
+            {/* Password Field */}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="relative pb-3">
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      placeholder="Enter your password"
+                      {...field}
+                      required
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <FormMessage className="absolute -bottom-1 left-0 text-xs" />
+                  <div className="text-right">
+                    <a
+                      href="/forgot-password"
+                      tabIndex={isLoading ? -1 : 0}
+                      className="text-sm underline-offset-2 hover:underline text-muted-foreground hover:text-foreground"
+                    >
+                      Forgot your password?
+                    </a>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {/* Submit Button */}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
+            </Button>
+
+            {/* Registration Link */}
+            {allowRegistration && (
+              <div className="text-center text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <a href="/register" className="underline underline-offset-4 text-primary hover:text-primary/80">
+                  Sign up
+                </a>
+              </div>
+            )}
           </div>
-
-        {/* Email Field */}
-        <div className="grid gap-2 relative pb-3">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            {...register("email")}
-            required
-            disabled={isLoading}
-            aria-invalid={errors.email ? "true" : "false"}
-          />
-          {errors.email && (
-            <p className="text-destructive text-xs absolute -bottom-1 left-0">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-
-        {/* Password Field */}
-        <div className="grid gap-2 relative pb-3">
-          <Label htmlFor="password">Password</Label>
-          <PasswordInput
-            id="password"
-            placeholder="Enter your password"
-            {...register("password")}
-            required
-            disabled={isLoading}
-            aria-invalid={errors.password ? "true" : "false"}
-          />
-          {errors.password && (
-            <p className="text-destructive text-xs absolute -bottom-1 left-0">
-              {errors.password.message}
-            </p>
-          )}
-           <a
-              href="/forgot-password"
-              tabIndex={isLoading ? -1 : 0}
-              className="ml-auto text-sm underline-offset-2 hover:underline text-muted-foreground hover:text-foreground"
-            >
-              Forgot your password?
-            </a>
-        </div>
-
-        {/* Submit Button */}
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-              Logging in...
-            </>
-          ) : (
-            "Login"
-          )}
-        </Button>
-
-        {/* Registration Link */}
-        {allowRegistration && (
-          <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <a href="/register" className="underline underline-offset-4 text-primary hover:text-primary/80">
-              Sign up
-            </a>
-          </div>
-        )}
-      </div>
-    </form>
+        </form>
+      </Form>
     </div>
   );
 };

@@ -9,8 +9,10 @@ require("dotenv").config();
 const roleRoutes = require("./routes/roles");
 const userRoutes = require("./routes/users");
 const clubRoutes = require("./routes/club");
- const authRoutes = require("./routes/auth");
- const swaggerRouter = require("./swagger");
+const groupRoutes = require("./routes/group");
+const competitionRoutes = require("./routes/competition");
+const authRoutes = require("./routes/auth");
+const swaggerRouter = require("./swagger");
 
 const app = express();
 
@@ -88,8 +90,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clubs", clubRoutes);
+app.use("/api/groups", groupRoutes);
+app.use("/api/competitions", competitionRoutes);
  
- app.use(swaggerRouter);
+app.use(swaggerRouter);
 
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/") || req.path.includes(".")) {

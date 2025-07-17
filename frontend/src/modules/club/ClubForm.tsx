@@ -1,14 +1,25 @@
 import { useEffect } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { LoaderCircle } from "lucide-react";
+
+// Shadcn UI components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { LoaderCircle } from "lucide-react";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+// Services and utilities
 import { post, put, get } from "@/services/apiService";
 import Validate from "@/lib/Handlevalidation";
 
@@ -100,15 +111,9 @@ const ClubForm = ({
 }: ClubFormProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  // Combined loading club from fetch and mutations
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    setError,
-    formState: { errors },
-  } = useForm<ClubFormInputs>({
+  // Initialize form with Shadcn Form
+  const form = useForm<ClubFormInputs>({
     resolver: zodResolver(mode === "create" ? clubFormSchemaCreate : clubFormSchemaEdit),
     defaultValues: {
       clubName: "",
@@ -140,14 +145,14 @@ const ClubForm = ({
     console.log("Club data received:", clubData); // Debug log
     if (clubData && mode === "edit") {
       console.log("Setting form values..."); // Debug log
-      setValue("clubName", clubData.clubName || "");
-      setValue("city", clubData.city || "");
-      setValue("address", clubData.address || "");
-      setValue("mobile", clubData.mobile || "");
-      setValue("email", clubData.email || "");
+      form.setValue("clubName", clubData.clubName || "");
+      form.setValue("city", clubData.city || "");
+      form.setValue("address", clubData.address || "");
+      form.setValue("mobile", clubData.mobile || "");
+      form.setValue("email", clubData.email || "");
       // Note: We don't set password for security reasons in edit mode
     }
-  }, [clubData, mode, setValue]);
+  }, [clubData, mode, form]);
 
   // Handle fetch error
   useEffect(() => {
@@ -176,7 +181,7 @@ const ClubForm = ({
       }
     },
     onError: (error: any) => {
-      Validate(error, setError);
+      Validate(error, form.setError);
       const msg = extractErrorMessage(error);
       if (msg) {
         toast.error(msg);
@@ -206,7 +211,7 @@ const ClubForm = ({
       }
     },
     onError: (error: any) => {
-      Validate(error, setError);
+      Validate(error, form.setError);
       const msg = extractErrorMessage(error);
       if (msg) {
         toast.error(msg);
@@ -221,7 +226,7 @@ const ClubForm = ({
   });
 
   // Handle form submission
-  const onSubmit: SubmitHandler<ClubFormInputs> = (data) => {
+  const onSubmit = (data: ClubFormInputs) => {
     if (mode === "create") {
       createClubMutation.mutate(data);
     } else {
@@ -242,131 +247,150 @@ const ClubForm = ({
 
   return (
     <div className={className}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
-        {/* Club Name Field */}
-        <div className="grid gap-2 relative">
-          <Label htmlFor="clubName" className="block mb-2">Club Name <span className="text-red-500">*</span></Label>
-          <Input
-            id="clubName"
-            placeholder="Enter club name"
-            {...register("clubName")}
-            disabled={isFormLoading}
-          />
-          {errors.clubName && (
-            <span className="mt-1 block text-xs text-destructive">
-              {errors.clubName.message}
-            </span>
-          )}
-
-          {/* Account Number Field */}
-          <div className="grid gap-2 relative">
-            <Label htmlFor="city" className="block mb-2">City <span className="text-red-500">*</span></Label>
-            <Input
-              id="city"
-              placeholder="Enter city"
-              {...register("city")}
-              disabled={isFormLoading}
-            />
-            {errors.city && (
-              <span className="mt-1 block text-xs text-destructive">
-                {errors.city.message}
-              </span>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
+          {/* Club Name Field */}
+          <FormField
+            control={form.control}
+            name="clubName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Club Name <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Enter club name" 
+                    {...field} 
+                    disabled={isFormLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-
-
-          <Label htmlFor="address" className="block mb-2">Address <span className="text-red-500">*</span></Label>
-          <Input
-            id="address"
-            placeholder="Enter address"
-            {...register("address")}
-            disabled={isFormLoading}
           />
-          {errors.address && (
-            <span className="mt-1 block text-xs text-destructive">
-              {errors.address.message}
-            </span>
-          )}
 
+          {/* City Field */}
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Enter city" 
+                    {...field} 
+                    disabled={isFormLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
+          {/* Address Field */}
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Enter address" 
+                    {...field} 
+                    disabled={isFormLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Mobile and Email Fields in a grid */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              {/* Mobile Field */}
-              <Label htmlFor="mobile" className="block mb-2">Mobile<span className="text-red-500">*</span></Label>
-              <Input
-                id="mobile"
-                placeholder="Enter mobile number"
-                {...register("mobile")}
-                disabled={isFormLoading}
-                maxLength={10}
-                type="tel"
-              />
-              {errors.mobile && (
-                <span className="mt-1 block text-xs text-destructive">
-                  {errors.mobile.message}
-                </span>
+            {/* Mobile Field */}
+            <FormField
+              control={form.control}
+              name="mobile"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mobile <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Enter mobile number" 
+                      {...field} 
+                      disabled={isFormLoading}
+                      maxLength={10}
+                      type="tel"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
-            <div>
-              {/* Email Field */}
-              <Label htmlFor="email" className="block mb-2">Email<span className="text-red-500">*</span></Label>
-              <Input
-                id="email"
-                placeholder="Enter email address"
-                {...register("email")}
-                disabled={isFormLoading}
-                type="email"
-              />
-              {errors.email && (
-                <span className="mt-1 block text-xs text-destructive">
-                  {errors.email.message}
-                </span>
+            {/* Email Field */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Enter email address" 
+                      {...field} 
+                      disabled={isFormLoading}
+                      type="email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
           </div>
 
           {/* Password Field */}
-          <div className="grid gap-2 relative">
-            <Label htmlFor="password" className="block mb-2">
-              Password
-              {mode === "create" && <span className="text-red-500">*</span>}
-              {mode === "edit" && <span className="text-sm text-muted-foreground ml-2">(Leave blank to keep current password)</span>}
-            </Label>
-            <Input
-              id="password"
-              placeholder={mode === "create" ? "Enter password" : "Leave blank to keep current password"}
-              {...register("password")}
-              disabled={isFormLoading}
-              type="password"
-            />
-            {errors.password && (
-              <span className="mt-1 block text-xs text-destructive">
-                {errors.password.message}
-              </span>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Password
+                  {mode === "create" && <span className="text-red-500">*</span>}
+                  {mode === "edit" && <span className="text-sm text-muted-foreground ml-2">(Leave blank to keep current password)</span>}
+                </FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder={mode === "create" ? "Enter password" : "Leave blank to keep current password"} 
+                    {...field} 
+                    disabled={isFormLoading}
+                    type="password"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
+          />
+
+          {/* Form Actions */}
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isFormLoading}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isFormLoading}>
+              {isFormLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+              {mode === "create" ? "Create" : "Update"} Club
+            </Button>
           </div>
-
-
-
-        </div>
-
-        {/* Form Actions */}
-        <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isFormLoading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isFormLoading}>
-            {isFormLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-            {mode === "create" ? "Create" : "Update"} Club
-          </Button>
-        </div>
-      </form>
+        </form>
+      </Form>
     </div>
   );
 };

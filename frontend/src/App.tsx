@@ -16,10 +16,12 @@ import ForgotPassword from "./modules/Auth/ForgotPassword";
 import ResetPassword from "./modules/Auth/ResetPassword";
 import ProtectedRoute from "./components/common/protected-route"; // Correct path
 import UserList from "@/modules/User/UserList";
+import GroupList from "@/modules/group/GroupList";
 import PartyList from "@/modules/club/ClubList";
  import Profile from "./modules/profile/EditAgency";
 import Dashboard from "./modules/Dashboard/dashboard";
 import Registerformat from "./modules/Register/register";
+
  import { Toaster } from "sonner";
 import "./App.css";
 const App = () => {
@@ -83,6 +85,15 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/groups"
+              element={
+                <ProtectedRoute>
+                  <GroupList />
+                </ProtectedRoute>
+              }
+            />
+
             
             <Route
               path="/registers"

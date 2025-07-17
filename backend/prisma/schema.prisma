@@ -33,5 +33,25 @@ model Club {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
+
+model Group{
+  id               Int       @id @default(autoincrement())
+  groupName        String
+  gender           String     
+  age              String    
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  @@map("groups")
+}
+
+model Competition{
+  id               Int       @id @default(autoincrement())
+  competitionName  String
+  date             String
+  age              String
+  lastEntryDate    String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
  
  
