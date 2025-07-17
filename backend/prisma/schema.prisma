@@ -17,29 +17,21 @@ model User {
   lastLogin         DateTime?
   resetToken        String?
   resetTokenExpires DateTime?
-  dayCloses         DayClose[]
-  createdAt         DateTime  @default(now())
+   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   @@map("users")
 }
 
-model Party {
+model Club {
   id               Int       @id @default(autoincrement())
-  partyName        String
-  accountNumber    String    @unique
+  clubName         String
+  city             String
   address          String
   mobile1          String
-  mobile2          String?
-  reference        String?
-  referenceMobile1 String?
-  referenceMobile2 String?
-  loans          Loan[]
+  email            String
+  password         String
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
-
-
- 
-
  
  

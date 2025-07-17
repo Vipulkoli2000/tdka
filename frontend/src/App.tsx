@@ -16,7 +16,7 @@ import ForgotPassword from "./modules/Auth/ForgotPassword";
 import ResetPassword from "./modules/Auth/ResetPassword";
 import ProtectedRoute from "./components/common/protected-route"; // Correct path
 import UserList from "@/modules/User/UserList";
-import PartyList from "@/modules/Parties/PartyList";
+import PartyList from "@/modules/club/ClubList";
  import Profile from "./modules/profile/EditAgency";
 import Dashboard from "./modules/Dashboard/dashboard";
 import Registerformat from "./modules/Register/register";
@@ -76,7 +76,7 @@ const App = () => {
               }
             />
             <Route
-              path="/parties"
+              path="/clubs"
               element={
                 <ProtectedRoute>
                   <PartyList />

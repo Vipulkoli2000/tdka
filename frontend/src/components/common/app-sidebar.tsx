@@ -43,20 +43,12 @@ const initialData = {
     
     admin: {
       projects: [
-        // {
-        //   name: "Dashboard",
-        //   url: "/dashboard",
-        //   icon: UsersRound, 
-        // },
+     
         
+      
         {
-          name: "Party",
-          url: "/parties",
-          icon: UsersRound,
-        },
-        {
-          name: "Loan",
-          url: "/loans",
+          name: "Club",
+          url: "clubs",
           icon: UsersRound,
         },
       
@@ -151,7 +143,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
              <div className="flex items-center gap-2  justify-between">
              <a
               className="flex items-center gap-2"
-              href="/loans"
+              href="/users"
               >
                 <img src="/credisphere-logo.svg" alt="CrediSphere logo" className="h-6 w-6" />
                 <span className="text-base font-semibold">{appName}</span>

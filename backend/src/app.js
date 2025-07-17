@@ -8,7 +8,7 @@ const path = require("path");
 require("dotenv").config();
 const roleRoutes = require("./routes/roles");
 const userRoutes = require("./routes/users");
-const partyRoutes = require("./routes/parties");
+const clubRoutes = require("./routes/club");
  const authRoutes = require("./routes/auth");
  const swaggerRouter = require("./swagger");
 
@@ -29,10 +29,31 @@ const allowedOrigins = allowedOriginsEnv
   ? allowedOriginsEnv.split(",")
   : ["http://localhost:5173", "http://18.138.7.88"];
 
-
+// Improved CORS configuration
 const corsOptions = {
-  origin: "*", // Specify the origin of your frontend application
-  credentials: true, // This allows cookies and credentials to be included in the requests
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Allow cookies and auth headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With', 
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control'
+  ],
+  exposedHeaders: ['X-Total-Count'],
+  maxAge: 86400 // Cache preflight for 24 hours
 };
 app.use(cors(corsOptions));
 
@@ -66,7 +87,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/parties", partyRoutes);
+app.use("/api/clubs", clubRoutes);
  
  app.use(swaggerRouter);
 

@@ -5,7 +5,9 @@
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-import { AppNavbar } from "@/components/common/app-navbar";
+// import { AppNavbar } from "@/components/common/app-navbar";
+import { AppSidebar } from "@/components/common/app-sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 
 
@@ -51,14 +53,17 @@ export default function MainLayout() {
   };
 
   return (
-    <div className="min-h-screen w-full">
-      <AppNavbar userData={userData} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-
-      {/* Content Area */}
-      <main className="p-4 pt-9">
-        {/* Add padding to prevent content from being hidden */}
-        <Outlet />
-      </main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        {/* <AppNavbar userData={userData} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} /> */}
+        
+        {/* Content Area */}
+        <main className="p-4 pt-9">
+          {/* Add padding to prevent content from being hidden */}
+          <Outlet />
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

@@ -42,40 +42,40 @@ import {
 import CustomPagination from "@/components/common/custom-pagination";
 import { get, del } from "@/services/apiService";
 // Import components from current directory
-import CreateParty from "./CreateParty";
-import EditParty from "./EditParty";
+import CreateClub from "./CreateClub";
+import EditClub from "./EditClub";
 
-const PartyList = () => {
+const ClubList = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(10);
-  const [sortBy, setSortBy] = useState("partyName");
+  const [sortBy, setSortBy] = useState("clubName");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [editPartyId, setEditPartyId] = useState<string | null>(null);
+  const [editClubId, setEditClubId] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  // Fetch parties
+  // Fetch clubs
   const {
     data,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["parties", page, limit, search, sortBy, sortOrder],
-    queryFn: () => get("/parties", { page, limit, search, sortBy, sortOrder }),
+    queryKey: ["clubs", page, limit, search, sortBy, sortOrder],
+    queryFn: () => get("/clubs", { page, limit, search, sortBy, sortOrder }),
   });
 
-  // Delete party mutation
+  // Delete club mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => del(`/parties/${id}`),
+    mutationFn: (id: number) => del(`/clubs/${id}`),
     onSuccess: () => {
-      toast.success("Party deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["parties"] });
+      toast.success("Club deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["clubs"] });
     },
     onError: (error: any) => {
-      toast.error(error.errors?.message || error.message || "Failed to delete party");
+      toast.error(error.errors?.message || error.message || "Failed to delete club");
     },
   });
 
@@ -109,9 +109,9 @@ const PartyList = () => {
     setPage(1); // Reset to first page when limit changes
   };
 
-  // Handle edit party
+  // Handle edit club
   const handleEdit = (id: string) => {
-    setEditPartyId(id);
+    setEditClubId(id);
     setIsEditDialogOpen(true);
   };
 
@@ -122,16 +122,16 @@ const PartyList = () => {
 
   const handleEditDialogClose = () => {
     setIsEditDialogOpen(false);
-    setEditPartyId(null);
+    setEditClubId(null);
   };
 
-  // Handle error party
+  // Handle error club
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Parties</h2>
-        <p>{(error as any)?.message || "Failed to load parties"}</p>
-        <Button className="mt-4" onClick={() => queryClient.invalidateQueries({ queryKey: ["parties"] })}>
+        <p>{(error as any)?.message || "Failed to load clubs"}</p>
+        <Button className="mt-4" onClick={() => queryClient.invalidateQueries({ queryKey: ["clubs"] })}>
           Try Again
         </Button>
       </div>
@@ -140,17 +140,17 @@ const PartyList = () => {
 
   return (
     <div className="space-y-4 p-6">
-      
-      
-      
+
+
+
       <Card className="border border-border">
         <CardHeader className="text-xl font-bold">
           Parties
           <CardDescription>
-          Manage parties
-        </CardDescription>
+            Manage clubs
+          </CardDescription>
         </CardHeader>
-      
+
         <CardContent>
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-4 mb-4 ">
@@ -158,7 +158,7 @@ const PartyList = () => {
             <div className="relative flex-1 min-w-[250px]">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search parties..."
+                placeholder="Search clubs..."
                 value={search}
                 onChange={handleSearchChange}
                 className="pl-8 w-full"
@@ -175,17 +175,17 @@ const PartyList = () => {
             </Button>
           </div>
 
- 
+
           {/* Parties Table */}
           <div className="rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead>Account Number</TableHead>
+                  <TableHead>Account Number</TableHead>
 
-                  <TableHead className="w-auto cursor-pointer" onClick={() => handleSort("partyName")}>
-                    Party Name
-                    {sortBy === "partyName" && (
+                  <TableHead className="w-auto cursor-pointer" onClick={() => handleSort("clubName")}>
+                    Club Name
+                    {sortBy === "clubName" && (
                       <span className="ml-2 inline-block">
                         {sortOrder === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </span>
@@ -201,33 +201,33 @@ const PartyList = () => {
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
                       <LoaderCircle className="h-6 w-6 animate-spin mx-auto" />
-                      <p className="mt-2">Loading parties...</p>
+                      <p className="mt-2">Loading clubs...</p>
                     </TableCell>
                   </TableRow>
-                ) : data?.parties?.length === 0 ? (
+                ) : data?.clubs?.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                      No parties found.
+                      No clubs found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  data?.parties?.map((party: any) => (
-                    <TableRow key={party.id}>
-                      <TableCell>{party.accountNumber}</TableCell>
-                      <TableCell>{party.partyName}</TableCell>
-                      <TableCell>{party.mobile1}</TableCell>
-                      <TableCell>{party.reference}</TableCell>
+                  data?.clubs?.map((club: any) => (
+                    <TableRow key={club.id}>
+                      <TableCell>{club.accountNumber}</TableCell>
+                      <TableCell>{club.clubName}</TableCell>
+                      <TableCell>{club.mobile1}</TableCell>
+                      <TableCell>{club.reference}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleEdit(party.id.toString())}
+                            onClick={() => handleEdit(club.id.toString())}
                           >
                             <PenSquare className="h-4 w-4" />
                             <span className="sr-only">Edit</span>
                           </Button>
-                          
+
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="ghost" size="icon">
@@ -239,13 +239,13 @@ const PartyList = () => {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete this party? This action cannot be undone.
+                                  Are you sure you want to delete this club? This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={() => deleteMutation.mutate(party.id)}
+                                <AlertDialogAction
+                                  onClick={() => deleteMutation.mutate(club.id)}
                                   className="bg-red-500 hover:bg-red-600"
                                 >
                                   {deleteMutation.isPending ? (
@@ -286,7 +286,7 @@ const PartyList = () => {
                 </select>
                 <span className="text-sm">per page</span>
               </div>
-              
+
               <CustomPagination
                 currentPage={page}
                 totalPages={data.totalPages}
@@ -295,7 +295,7 @@ const PartyList = () => {
                 onPageChange={handlePageChange}
                 onRecordsPerPageChange={handleRecordsPerPageChange}
               />
-              
+
               <div className="text-sm">
                 Showing {(page - 1) * limit + 1} to {Math.min(page * limit, data.totalParties)} of {data.totalParties}
               </div>
@@ -304,24 +304,24 @@ const PartyList = () => {
         </CardContent>
       </Card>
 
-      {/* Create Party Dialog */}
+      {/* Create Club Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Add New Party</DialogTitle>
+            <DialogTitle>Add New Club</DialogTitle>
           </DialogHeader>
-          <CreateParty onSuccess={handleCreateDialogClose} />
+          <CreateClub onSuccess={handleCreateDialogClose} />
         </DialogContent>
       </Dialog>
 
-      {/* Edit Party Dialog */}
-      {editPartyId && (
+      {/* Edit Club Dialog */}
+      {editClubId && (
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Edit Party</DialogTitle>
+              <DialogTitle>Edit Club</DialogTitle>
             </DialogHeader>
-            <EditParty partyId={editPartyId} onSuccess={handleEditDialogClose} />
+            <EditClub clubId={editClubId} onSuccess={handleEditDialogClose} />
           </DialogContent>
         </Dialog>
       )}
@@ -329,4 +329,4 @@ const PartyList = () => {
   );
 };
 
-export default PartyList;
+export default ClubList;

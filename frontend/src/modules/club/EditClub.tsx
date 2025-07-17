@@ -1,15 +1,15 @@
 
-import PartyForm from "./PartyForm";
+import ClubForm from "./ClubForm";
 
-interface EditPartyProps {
+interface EditClubProps {
   partyId: string;
   onSuccess?: () => void;
   className?: string;
 }
 
-const EditParty = ({ partyId, onSuccess, className }: EditPartyProps) => {
+const EditClub = ({ partyId, onSuccess, className }: EditClubProps) => {
   return (
-    <PartyForm 
+    <ClubForm 
       mode="edit" 
       partyId={partyId}
       onSuccess={onSuccess}
@@ -18,4 +18,4 @@ const EditParty = ({ partyId, onSuccess, className }: EditPartyProps) => {
   );
 };
 
-export default EditParty;
+export default EditClub;

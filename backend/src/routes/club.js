@@ -1,5 +1,5 @@
 const express = require("express");
-const partyController = require("../controllers/partyController");
+const clubController = require("../controllers/clubController");
 const auth = require("../middleware/auth");
 
 const router = express.Router();
@@ -7,30 +7,30 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   name: Parties
- *   description: Party management endpoints
+ *   name: Clubs
+ *   description: Club management endpoints
  */
 
 /**
  * @swagger
- * /parties:
+ * /clubs:
  *   get:
- *     summary: Get all parties
- *     tags: [Parties]
+ *     summary: Get all clubs
+ *     tags: [Clubs]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of all parties
+ *         description: List of all clubs
  */
-router.get("/", auth, partyController.getParties);
+router.get("/", auth, clubController.getClubs);
 
 /**
  * @swagger
- * /parties/{id}:
+ * /clubs/{id}:
  *   get:
- *     summary: Get a party by ID
- *     tags: [Parties]
+ *     summary: Get a club by ID
+ *     tags: [Clubs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -39,21 +39,21 @@ router.get("/", auth, partyController.getParties);
  *         schema:
  *           type: integer
  *         required: true
- *         description: Party ID
+ *         description: Club ID
  *     responses:
  *       200:
- *         description: Party data
+ *         description: Club data
  *       404:
- *         description: Party not found
+ *         description: Club not found
  */
-router.get("/:id", auth, partyController.getParty);
+router.get("/:id", auth, clubController.getClub);
 
 /**
  * @swagger
- * /parties:
+ * /clubs:
  *   post:
- *     summary: Create a new party
- *     tags: [Parties]
+ *     summary: Create a new club
+ *     tags: [Clubs]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -61,19 +61,19 @@ router.get("/:id", auth, partyController.getParty);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Party'
+ *             $ref: '#/components/schemas/Club'
  *     responses:
  *       201:
- *         description: Party created
+ *         description: Club created
  */
-router.post("/", auth, partyController.createParty);
+router.post("/", auth, clubController.createClub);
 
 /**
  * @swagger
- * /parties/{id}:
+ * /clubs/{id}:
  *   put:
- *     summary: Update a party by ID
- *     tags: [Parties]
+ *     summary: Update a club by ID
+ *     tags: [Clubs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -82,27 +82,27 @@ router.post("/", auth, partyController.createParty);
  *         schema:
  *           type: integer
  *         required: true
- *         description: Party ID
+ *         description: Club ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Party'
+ *             $ref: '#/components/schemas/Club'
  *     responses:
  *       200:
- *         description: Party updated
+ *         description: Club updated
  *       404:
- *         description: Party not found
+ *         description: Club not found
  */
-router.put("/:id", auth, partyController.updateParty);
+router.put("/:id", auth, clubController.updateClub);
 
 /**
  * @swagger
- * /parties/{id}:
+ * /clubs/{id}:
  *   delete:
- *     summary: Delete a party by ID
- *     tags: [Parties]
+ *     summary: Delete a club by ID
+ *     tags: [Clubs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -111,13 +111,13 @@ router.put("/:id", auth, partyController.updateParty);
  *         schema:
  *           type: integer
  *         required: true
- *         description: Party ID
+ *         description: Club ID
  *     responses:
  *       200:
- *         description: Party deleted
+ *         description: Club deleted
  *       404:
- *         description: Party not found
+ *         description: Club not found
  */
-router.delete("/:id", auth, partyController.deleteParty);
+router.delete("/:id", auth, clubController.deleteClub);
 
 module.exports = router;
