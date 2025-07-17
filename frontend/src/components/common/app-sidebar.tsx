@@ -53,10 +53,14 @@ const initialData = {
           url: "groups",
           icon: UsersRound,
         },
+        {
+          name: "Competition",
+          url: "competitions",
+          icon: UsersRound,
+        },
       
       ],
     },
- 
   },
   user: {
     name: "",

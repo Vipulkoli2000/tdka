@@ -17,8 +17,9 @@ import ResetPassword from "./modules/Auth/ResetPassword";
 import ProtectedRoute from "./components/common/protected-route"; // Correct path
 import UserList from "@/modules/User/UserList";
 import GroupList from "@/modules/group/GroupList";
-import PartyList from "@/modules/club/ClubList";
- import Profile from "./modules/profile/EditAgency";
+import ClubList from "@/modules/club/ClubList";
+import CompetitionList from "@/modules/competition/CompetitionList";
+  import Profile from "./modules/profile/EditAgency";
 import Dashboard from "./modules/Dashboard/dashboard";
 import Registerformat from "./modules/Register/register";
 
@@ -81,7 +82,7 @@ const App = () => {
               path="/clubs"
               element={
                 <ProtectedRoute>
-                  <PartyList />
+                  <ClubList />
                 </ProtectedRoute>
               }
             />
@@ -90,6 +91,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <GroupList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/competitions"
+              element={
+                <ProtectedRoute>
+                  <CompetitionList />
                 </ProtectedRoute>
               }
             />

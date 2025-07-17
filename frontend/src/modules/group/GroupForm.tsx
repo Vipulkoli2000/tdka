@@ -259,7 +259,7 @@ const GroupForm = ({
                   <FormLabel>Gender <span className="text-red-500">*</span></FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                     disabled={isFormLoading}
                   >
                     <FormControl>
