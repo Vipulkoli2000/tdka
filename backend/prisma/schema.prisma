@@ -27,7 +27,7 @@ model Club {
   clubName         String
   city             String
   address          String
-  mobile1          String
+  mobile          String
   email            String
   password         String
   createdAt        DateTime  @default(now())

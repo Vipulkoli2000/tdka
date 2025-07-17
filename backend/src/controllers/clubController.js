@@ -2,6 +2,7 @@ const { PrismaClient, Prisma } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { z } = require("zod");
 const createError = require("http-errors");
+const bcrypt = require("bcryptjs");
 
 /**
  * Wrap async route handlers and funnel errors through Express error middleware.
@@ -71,7 +72,7 @@ const getClubs = asyncHandler(async (req, res) => {
         clubName: true,
         city: true,
         address: true,
-        mobile1: true,
+        mobile: true,
         email: true,
         createdAt: true,
         updatedAt: true,
@@ -101,7 +102,7 @@ const getClub = asyncHandler(async (req, res) => {
       clubName: true,
       city: true,
       address: true,
-      mobile1: true,
+      mobile: true,
       email: true,
       createdAt: true,
       updatedAt: true,
@@ -117,7 +118,7 @@ const createClub = asyncHandler(async (req, res) => {
     clubName: z.string().min(1, "Club name is required").max(255),
     city: z.string().min(1, "City is required").max(255),
     address: z.string().min(1, "Address is required").max(500),
-    mobile1: z.string().min(1, "Mobile number is required").max(20),
+    mobile: z.string().min(1, "Mobile number is required").max(20),
     email: z.string().email("Valid email is required").max(255),
     password: z.string().min(6, "Password must be at least 6 characters").max(255),
   });
@@ -125,7 +126,14 @@ const createClub = asyncHandler(async (req, res) => {
   // Will throw Zod errors caught by asyncHandler
   const validatedData = await schema.parseAsync(req.body);
 
-  const club = await prisma.club.create({ data: validatedData });
+  // Hash the password before saving
+  const hashedPassword = await bcrypt.hash(validatedData.password, 10);
+  const dataWithHashedPassword = {
+    ...validatedData,
+    password: hashedPassword
+  };
+
+  const club = await prisma.club.create({ data: dataWithHashedPassword });
 
   // Return club without password
   const { password, ...clubResponse } = club;
@@ -141,7 +149,7 @@ const updateClub = asyncHandler(async (req, res) => {
       clubName: z.string().min(1).max(255).optional(),
       city: z.string().min(1).max(255).optional(),
       address: z.string().min(1).max(500).optional(),
-      mobile1: z.string().min(1).max(20).optional(),
+      mobile: z.string().min(1).max(20).optional(),
       email: z.string().email("Valid email is required").max(255).optional(),
       password: z.string().min(6, "Password must be at least 6 characters").max(255).optional(),
     })
@@ -149,14 +157,20 @@ const updateClub = asyncHandler(async (req, res) => {
       message: "At least one field is required",
     });
 
-  await schema.parseAsync(req.body);
+  const validatedData = await schema.parseAsync(req.body);
 
   const existing = await prisma.club.findUnique({ where: { id } });
   if (!existing) throw createError(404, "Club not found");
 
+  // If password is being updated, hash it
+  let dataToUpdate = { ...validatedData };
+  if (validatedData.password) {
+    dataToUpdate.password = await bcrypt.hash(validatedData.password, 10);
+  }
+
   const updated = await prisma.club.update({
     where: { id },
-    data: req.body,
+    data: dataToUpdate,
   });
 
   // Return club without password

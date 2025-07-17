@@ -2,16 +2,16 @@
 import ClubForm from "./ClubForm";
 
 interface EditClubProps {
-  partyId: string;
+  clubId: string;
   onSuccess?: () => void;
   className?: string;
 }
 
-const EditClub = ({ partyId, onSuccess, className }: EditClubProps) => {
+const EditClub = ({ clubId, onSuccess, className }: EditClubProps) => {
   return (
     <ClubForm 
       mode="edit" 
-      partyId={partyId}
+      clubId={clubId}
       onSuccess={onSuccess}
       className={className}
     />

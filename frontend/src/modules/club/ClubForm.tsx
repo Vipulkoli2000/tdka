@@ -16,36 +16,44 @@ import Validate from "@/lib/Handlevalidation";
 interface ClubData {
   id: number;
   clubName: string;
-  accountNumber: string;
+  city: string;
   address: string;
-  mobile1: string;
-  mobile2: string;
-  reference: string;
-  referenceMobile1: string;
-  referenceMobile2: string;
+  mobile: string;
+  email: string;
   createdAt: string;
   updatedAt: string;
 }
 
-const clubFormSchema = z.object({
+// Create separate schemas for create and edit modes
+const clubFormSchemaBase = z.object({
   clubName: z.string()
     .min(1, "Club name is required")
     .max(255, "Club name must not exceed 255 characters"),
-    accountNumber: z.string()
-    .min(1, "Account number is required")
-    .max(255, "Account number must not exceed 255 characters"),
-    address: z.string()
+  city: z.string()
+    .min(1, "City is required")
+    .max(255, "City must not exceed 255 characters"),
+  address: z.string()
     .min(1, "Address is required")
     .max(255, "Address must not exceed 255 characters"),
-    mobile1: z.string()
+  mobile: z.string()
     .min(1, "Mobile number is required")
     .max(255, "Mobile number must not exceed 255 characters"),
-    mobile2: z.any().optional(),
-    reference: z.any()
-    .optional(),
-    referenceMobile1: z.any()
-    .optional(),
-    referenceMobile2: z.any().optional(),
+  email: z.string()
+    .email("Valid email is required")
+    .max(255, "Email must not exceed 255 characters"),
+});
+
+const clubFormSchemaCreate = clubFormSchemaBase.extend({
+  password: z.string()
+    .min(6, "Password must be at least 6 characters")
+    .max(255, "Password must not exceed 255 characters"),
+});
+
+const clubFormSchemaEdit = clubFormSchemaBase.extend({
+  password: z.string()
+    .max(255, "Password must not exceed 255 characters")
+    .optional()
+    .or(z.literal('')),
 });
 
 // Helper to extract user-friendly message from API error
@@ -75,7 +83,7 @@ const extractErrorMessage = (error: any): string | undefined => {
   return error?.message;
 };
 
-type ClubFormInputs = z.infer<typeof clubFormSchema>;
+type ClubFormInputs = z.infer<typeof clubFormSchemaCreate>;
 
 interface ClubFormProps {
   mode: "create" | "edit";
@@ -101,25 +109,26 @@ const ClubForm = ({
     setError,
     formState: { errors },
   } = useForm<ClubFormInputs>({
-    resolver: zodResolver(clubFormSchema),
+    resolver: zodResolver(mode === "create" ? clubFormSchemaCreate : clubFormSchemaEdit),
     defaultValues: {
       clubName: "",
-      accountNumber: "",
+      city: "",
       address: "",
-      mobile1: "",
-      mobile2: "",
-      reference: "",
-      referenceMobile1: "",
-      referenceMobile2: "",
+      mobile: "",
+      email: "",
+      password: "",
     },
   });
 
   // Query for fetching club data in edit mode
-  const { isLoading: isFetchingClub } = useQuery({
+  const { data: clubData, isLoading: isFetchingClub, error: fetchError } = useQuery({
     queryKey: ["club", clubId],
     queryFn: async (): Promise<ClubData> => {
       if (!clubId) throw new Error("Club ID is required");
-      return get(`/clubs/${clubId}`);
+      const response = await get(`/clubs/${clubId}`);
+      console.log("Club API response:", response); // Debug log
+      // Handle different response structures
+      return response.club || response;
     },
     enabled: mode === "edit" && !!clubId,
     retry: 1,
@@ -128,31 +137,29 @@ const ClubForm = ({
 
   // Handle successful club fetch
   useEffect(() => {
-    if (mode === "edit" && clubId) {
-      queryClient.fetchQuery({
-        queryKey: ["club", clubId],
-        queryFn: async (): Promise<ClubData> => {
-          return get(`/clubs/${clubId}`);
-        },
-      }).then((data) => {
-        setValue("clubName", data.clubName);
-        setValue("accountNumber", data.accountNumber);
-        setValue("address", data.address);
-        setValue("mobile1", data.mobile1);
-        setValue("mobile2", data.mobile2);
-        setValue("reference", data.reference);
-        setValue("referenceMobile1", data.referenceMobile1);
-        setValue("referenceMobile2", data.referenceMobile2);
-      }).catch((error) => {
-        toast.error(error.message || "Failed to fetch club details");
-        if (onSuccess) {
-          onSuccess();
-        } else {
-          navigate("/clubs");
-        }
-      });
+    console.log("Club data received:", clubData); // Debug log
+    if (clubData && mode === "edit") {
+      console.log("Setting form values..."); // Debug log
+      setValue("clubName", clubData.clubName || "");
+      setValue("city", clubData.city || "");
+      setValue("address", clubData.address || "");
+      setValue("mobile", clubData.mobile || "");
+      setValue("email", clubData.email || "");
+      // Note: We don't set password for security reasons in edit mode
     }
-  }, [clubId, mode, setValue, queryClient, navigate, onSuccess]);
+  }, [clubData, mode, setValue]);
+
+  // Handle fetch error
+  useEffect(() => {
+    if (fetchError && mode === "edit") {
+      toast.error(fetchError.message || "Failed to fetch club details");
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate("/clubs");
+      }
+    }
+  }, [fetchError, mode, onSuccess, navigate]);
 
   // Mutation for creating a club
   const createClubMutation = useMutation({
@@ -253,122 +260,95 @@ const ClubForm = ({
 
           {/* Account Number Field */}
           <div className="grid gap-2 relative">
-            <Label htmlFor="accountNumber" className="block mb-2">Account Number <span className="text-red-500">*</span></Label>
+            <Label htmlFor="city" className="block mb-2">City <span className="text-red-500">*</span></Label>
             <Input
-              id="accountNumber"
-              placeholder="Enter account number"
-              {...register("accountNumber")}
+              id="city"
+              placeholder="Enter city"
+              {...register("city")}
               disabled={isFormLoading}
             />
-            {errors.accountNumber && (
+            {errors.city && (
               <span className="mt-1 block text-xs text-destructive">
-                {errors.accountNumber.message}
+                {errors.city.message}
               </span>
             )}
           </div>
 
-         
-            <Label htmlFor="address" className="block mb-2">Address <span className="text-red-500">*</span></Label>
-            <Input
-              id="address"
-              placeholder="Enter address"
-              {...register("address")}
-              disabled={isFormLoading}
-            />
-            {errors.address && (
-              <span className="mt-1 block text-xs text-destructive">
-                {errors.address.message}
-              </span>
-            )}
+
+          <Label htmlFor="address" className="block mb-2">Address <span className="text-red-500">*</span></Label>
+          <Input
+            id="address"
+            placeholder="Enter address"
+            {...register("address")}
+            disabled={isFormLoading}
+          />
+          {errors.address && (
+            <span className="mt-1 block text-xs text-destructive">
+              {errors.address.message}
+            </span>
+          )}
 
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-            {/* Mobile 1 Field */}
-            <Label htmlFor="mobile1" className="block mb-2">Mobile 1 <span className="text-red-500">*</span></Label>
-            <Input
-              id="mobile1"
-              placeholder="Enter mobile number"
-              {...register("mobile1")}
-              disabled={isFormLoading}
-              maxLength={10}
-type="tel"
-            />
-            {errors.mobile1 && (
-              <span className="mt-1 block text-xs text-destructive">
-                {errors.mobile1.message}
-              </span>
-            )}
-            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
-            {/* Mobile 2 Field */}
-            <Label htmlFor="mobile2" className="block mb-2">Mobile 2</Label>
-            <Input
-              id="mobile2"
-              placeholder="Enter mobile number"
-              {...register("mobile2")}
-              disabled={isFormLoading}
-              maxLength={10}
-type="tel"
-            />
-            {errors.mobile2 && (
-              <span className="mt-1 block text-xs text-destructive">
-                {errors.mobile2.message}
-              </span>
-            )}
-            </div>
+              {/* Mobile Field */}
+              <Label htmlFor="mobile" className="block mb-2">Mobile<span className="text-red-500">*</span></Label>
+              <Input
+                id="mobile"
+                placeholder="Enter mobile number"
+                {...register("mobile")}
+                disabled={isFormLoading}
+                maxLength={10}
+                type="tel"
+              />
+              {errors.mobile && (
+                <span className="mt-1 block text-xs text-destructive">
+                  {errors.mobile.message}
+                </span>
+              )}
             </div>
 
-            {/* Reference Field */}
-            <Label htmlFor="reference" className="block mb-2">Reference</Label>
+            <div>
+              {/* Email Field */}
+              <Label htmlFor="email" className="block mb-2">Email<span className="text-red-500">*</span></Label>
+              <Input
+                id="email"
+                placeholder="Enter email address"
+                {...register("email")}
+                disabled={isFormLoading}
+                type="email"
+              />
+              {errors.email && (
+                <span className="mt-1 block text-xs text-destructive">
+                  {errors.email.message}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Password Field */}
+          <div className="grid gap-2 relative">
+            <Label htmlFor="password" className="block mb-2">
+              Password
+              {mode === "create" && <span className="text-red-500">*</span>}
+              {mode === "edit" && <span className="text-sm text-muted-foreground ml-2">(Leave blank to keep current password)</span>}
+            </Label>
             <Input
-              id="reference"
-              placeholder="Enter reference"
-              {...register("reference")}
+              id="password"
+              placeholder={mode === "create" ? "Enter password" : "Leave blank to keep current password"}
+              {...register("password")}
               disabled={isFormLoading}
+              type="password"
             />
-            {errors.reference && (
+            {errors.password && (
               <span className="mt-1 block text-xs text-destructive">
-                {errors.reference.message}
+                {errors.password.message}
               </span>
             )}
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                {/* Reference Mobile 1 Field */}
-                <Label htmlFor="referenceMobile1" className="block mb-2">Reference Mobile 1</Label>
-                <Input
-                  id="referenceMobile1"
-                  placeholder="Enter reference mobile number"
-                  {...register("referenceMobile1")}
-                  disabled={isFormLoading}
-                  maxLength={10}
-                  type="tel"
-                />
-                {errors.referenceMobile1 && (
-                  <span className="mt-1 block text-xs text-destructive">
-                    {errors.referenceMobile1.message}
-                  </span>
-                )}
-              </div>
-              <div>
-                {/* Reference Mobile 2 Field */}
-                <Label htmlFor="referenceMobile2" className="block mb-2">Reference Mobile 2</Label>
-                <Input
-                  id="referenceMobile2"
-                  placeholder="Enter reference mobile number"
-                  {...register("referenceMobile2")}
-                  disabled={isFormLoading}
-                  maxLength={10}
-                  type="tel"
-                 />
-                {errors.referenceMobile2 && (
-                  <span className="mt-1 block text-xs text-destructive">
-                    {errors.referenceMobile2.message}
-                  </span>
-                )}
-              </div>
-            </div>
+
+
         </div>
 
         {/* Form Actions */}

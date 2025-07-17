@@ -95,7 +95,7 @@ const Login = () => {
       }
       
       // queryClient.invalidateQueries(...) // Consider invalidating relevant queries
-      navigate("/users");
+      navigate("/clubs");
       toast.success("Login successful!");
     },
     onError: (error: ApiErrorResponse) => {

@@ -129,7 +129,7 @@ const ClubList = () => {
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center h-96">
-        <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Parties</h2>
+        <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Clubs</h2>
         <p>{(error as any)?.message || "Failed to load clubs"}</p>
         <Button className="mt-4" onClick={() => queryClient.invalidateQueries({ queryKey: ["clubs"] })}>
           Try Again
@@ -145,7 +145,7 @@ const ClubList = () => {
 
       <Card className="border border-border">
         <CardHeader className="text-xl font-bold">
-          Parties
+          Clubs
           <CardDescription>
             Manage clubs
           </CardDescription>
@@ -176,23 +176,23 @@ const ClubList = () => {
           </div>
 
 
-          {/* Parties Table */}
+          {/* Clubs Table */}
           <div className="rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <TableHead>Account Number</TableHead>
+                  <TableHead>Club Name</TableHead>
 
                   <TableHead className="w-auto cursor-pointer" onClick={() => handleSort("clubName")}>
-                    Club Name
+                    City
                     {sortBy === "clubName" && (
                       <span className="ml-2 inline-block">
                         {sortOrder === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </span>
                     )}
                   </TableHead>
-                  <TableHead>Mobile1</TableHead>
-                  <TableHead>Reference</TableHead>
+                  <TableHead>Mobile</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -213,10 +213,10 @@ const ClubList = () => {
                 ) : (
                   data?.clubs?.map((club: any) => (
                     <TableRow key={club.id}>
-                      <TableCell>{club.accountNumber}</TableCell>
                       <TableCell>{club.clubName}</TableCell>
-                      <TableCell>{club.mobile1}</TableCell>
-                      <TableCell>{club.reference}</TableCell>
+                      <TableCell>{club.city}</TableCell>
+                      <TableCell>{club.mobile}</TableCell>
+                      <TableCell>{club.email}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
@@ -290,14 +290,14 @@ const ClubList = () => {
               <CustomPagination
                 currentPage={page}
                 totalPages={data.totalPages}
-                totalRecords={data.totalParties}
+                totalRecords={data.totalClubs}
                 recordsPerPage={limit}
                 onPageChange={handlePageChange}
                 onRecordsPerPageChange={handleRecordsPerPageChange}
               />
 
               <div className="text-sm">
-                Showing {(page - 1) * limit + 1} to {Math.min(page * limit, data.totalParties)} of {data.totalParties}
+                Showing {(page - 1) * limit + 1} to {Math.min(page * limit, data.totalClubs)} of {data.totalClubs}
               </div>
             </div>
           )}

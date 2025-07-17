@@ -75,11 +75,13 @@ const login = async (req, res, next) => {
   try {
     const validationErrors = await validateRequest(schema, req.body, res);
     const { email, password } = req.body;
+    
+    console.log("Login attempt for email:", email);
 
 
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
+    // Find user by email first
+    let user = await prisma.user.findUnique({
       where: { email },
       select: {
         id: true,
@@ -87,11 +89,39 @@ const login = async (req, res, next) => {
         email: true,
         password: true,
         role: true,
-
         active: true,
         lastLogin: true,
       },
     });
+
+    let isClub = false;
+    
+    // If not found in users, check clubs
+    if (!user) {
+      const club = await prisma.club.findFirst({
+        where: { email },
+        select: {
+          id: true,
+          clubName: true,
+          email: true,
+          password: true,
+        },
+      });
+      
+      if (club) {
+        // Transform club data to match user structure
+        user = {
+          id: club.id,
+          name: club.clubName,
+          email: club.email,
+          password: club.password,
+          role: "CLUB",
+          active: true,
+          lastLogin: null,
+        };
+        isClub = true;
+      }
+    }
 
     if (!user) {
       return res
@@ -99,7 +129,7 @@ const login = async (req, res, next) => {
         .json({ errors: { message: "Invalid email or password" } });
     }
 
-    // Handle regular user login
+    // Handle password verification
     if (!(await bcrypt.compare(password, user.password))) {
       return res
         .status(401)
@@ -112,15 +142,17 @@ const login = async (req, res, next) => {
         .json({ errors: { message: "Account is inactive" } });
     }
 
-    const token = jwt.sign({ userId: user.id }, jwtConfig.secret, {
+    const token = jwt.sign({ userId: user.id, isClub }, jwtConfig.secret, {
       expiresIn: jwtConfig.expiresIn,
     });
 
-    // Update lastLogin timestamp
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLogin: new Date() },
-    });
+    // Update lastLogin timestamp only for users
+    if (!isClub) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      });
+    }
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
