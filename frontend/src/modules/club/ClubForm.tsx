@@ -65,7 +65,8 @@ const clubFormSchemaEdit = clubFormSchemaBase.extend({
   password: z.string()
     .max(255, "Password must not exceed 255 characters")
     .optional()
-    .or(z.literal('')),
+    .or(z.literal(''))
+    .transform(val => val === '' ? undefined : val),
 });
 
 // Helper to extract user-friendly message from API error

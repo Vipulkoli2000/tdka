@@ -61,6 +61,15 @@ const initialData = {
       
       ],
     },
+    clubadmin: {
+      projects: [
+        {
+          name: "Club",
+          url: "clubs",
+          icon: UsersRound,
+        },
+      ],
+    },
   },
   user: {
     name: "",

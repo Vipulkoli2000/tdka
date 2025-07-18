@@ -121,6 +121,7 @@ const createClub = asyncHandler(async (req, res) => {
     mobile: z.string().min(1, "Mobile number is required").max(20),
     email: z.string().email("Valid email is required").max(255),
     password: z.string().min(6, "Password must be at least 6 characters").max(255),
+    role: z.string().default("clubadmin"),
   });
 
   // Will throw Zod errors caught by asyncHandler
@@ -133,10 +134,36 @@ const createClub = asyncHandler(async (req, res) => {
     password: hashedPassword
   };
 
-  const club = await prisma.club.create({ data: dataWithHashedPassword });
+  // Start a transaction to create both club and user
+  const result = await prisma.$transaction(async (prisma) => {
+    // Create the club
+    const club = await prisma.club.create({ 
+      data: {
+        clubName: validatedData.clubName,
+        city: validatedData.city,
+        address: validatedData.address,
+        mobile: validatedData.mobile,
+        email: validatedData.email,
+        password: hashedPassword
+      } 
+    });
+    
+    // Create a user with clubadmin role
+    const user = await prisma.user.create({
+      data: {
+        name: validatedData.clubName, // Use club name as user name
+        email: validatedData.email,
+        password: hashedPassword,
+        role: "clubadmin", // Set role as clubadmin
+        active: true
+      }
+    });
+    
+    return { club, user };
+  });
 
   // Return club without password
-  const { password, ...clubResponse } = club;
+  const { password, ...clubResponse } = result.club;
   res.status(201).json(clubResponse);
 });
 
@@ -151,7 +178,8 @@ const updateClub = asyncHandler(async (req, res) => {
       address: z.string().min(1).max(500).optional(),
       mobile: z.string().min(1).max(20).optional(),
       email: z.string().email("Valid email is required").max(255).optional(),
-      password: z.string().min(6, "Password must be at least 6 characters").max(255).optional(),
+      password: z.string().min(6, "Password must be at least 6 characters").max(255).optional().or(z.literal('')),
+      role: z.string().optional(),
     })
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field is required",
@@ -164,14 +192,61 @@ const updateClub = asyncHandler(async (req, res) => {
 
   // If password is being updated, hash it
   let dataToUpdate = { ...validatedData };
-  if (validatedData.password) {
-    dataToUpdate.password = await bcrypt.hash(validatedData.password, 10);
+  
+  // Handle empty password - remove it from the update data
+  if (dataToUpdate.password === '') {
+    delete dataToUpdate.password;
+  } else if (dataToUpdate.password) {
+    dataToUpdate.password = await bcrypt.hash(dataToUpdate.password, 10);
   }
+
+  // Remove undefined fields and role field (not in Club model) to prevent errors
+  Object.keys(dataToUpdate).forEach(key => {
+    if (dataToUpdate[key] === undefined || key === 'role') {
+      delete dataToUpdate[key];
+    }
+  });
 
   const updated = await prisma.club.update({
     where: { id },
     data: dataToUpdate,
   });
+
+  // If email is being updated, also update the corresponding user
+  if (validatedData.email) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: { 
+          email: existing.email,
+          role: "clubadmin"
+        }
+      });
+      
+      if (user) {
+        const userUpdateData = {
+          email: validatedData.email
+        };
+        
+        // If club name is updated, update user name too
+        if (validatedData.clubName) {
+          userUpdateData.name = validatedData.clubName;
+        }
+        
+        // If password is updated, update user password too
+        if (validatedData.password) {
+          userUpdateData.password = dataToUpdate.password; // Already hashed
+        }
+        
+        await prisma.user.update({
+          where: { id: user.id },
+          data: userUpdateData
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update associated user:", error);
+      // Continue with the response even if user update fails
+    }
+  }
 
   // Return club without password
   const { password, ...clubResponse } = updated;
