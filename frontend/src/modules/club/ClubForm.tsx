@@ -52,6 +52,7 @@ const clubFormSchemaBase = z.object({
   email: z.string()
     .email("Valid email is required")
     .max(255, "Email must not exceed 255 characters"),
+  role: z.string().default("clubadmin"),
 });
 
 const clubFormSchemaCreate = clubFormSchemaBase.extend({
@@ -122,6 +123,7 @@ const ClubForm = ({
       mobile: "",
       email: "",
       password: "",
+      role: "clubadmin", // Set default role for club users
     },
   });
 
@@ -257,9 +259,9 @@ const ClubForm = ({
               <FormItem>
                 <FormLabel>Club Name <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Enter club name" 
-                    {...field} 
+                  <Input
+                    placeholder="Enter club name"
+                    {...field}
                     disabled={isFormLoading}
                   />
                 </FormControl>
@@ -276,9 +278,9 @@ const ClubForm = ({
               <FormItem>
                 <FormLabel>City <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Enter city" 
-                    {...field} 
+                  <Input
+                    placeholder="Enter city"
+                    {...field}
                     disabled={isFormLoading}
                   />
                 </FormControl>
@@ -295,9 +297,9 @@ const ClubForm = ({
               <FormItem>
                 <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Enter address" 
-                    {...field} 
+                  <Input
+                    placeholder="Enter address"
+                    {...field}
                     disabled={isFormLoading}
                   />
                 </FormControl>
@@ -316,9 +318,9 @@ const ClubForm = ({
                 <FormItem>
                   <FormLabel>Mobile <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Enter mobile number" 
-                      {...field} 
+                    <Input
+                      placeholder="Enter mobile number"
+                      {...field}
                       disabled={isFormLoading}
                       maxLength={10}
                       type="tel"
@@ -337,9 +339,9 @@ const ClubForm = ({
                 <FormItem>
                   <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Enter email address" 
-                      {...field} 
+                    <Input
+                      placeholder="Enter email address"
+                      {...field}
                       disabled={isFormLoading}
                       type="email"
                     />
@@ -362,9 +364,9 @@ const ClubForm = ({
                   {mode === "edit" && <span className="text-sm text-muted-foreground ml-2">(Leave blank to keep current password)</span>}
                 </FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder={mode === "create" ? "Enter password" : "Leave blank to keep current password"} 
-                    {...field} 
+                  <Input
+                    placeholder={mode === "create" ? "Enter password" : "Leave blank to keep current password"}
+                    {...field}
                     disabled={isFormLoading}
                     type="password"
                   />

@@ -255,7 +255,7 @@ const GroupForm = ({
               control={form.control}
               name="gender"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="w-full">
                   <FormLabel>Gender <span className="text-red-500">*</span></FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -263,7 +263,7 @@ const GroupForm = ({
                     disabled={isFormLoading}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
                     </FormControl>
