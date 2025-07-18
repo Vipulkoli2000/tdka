@@ -313,7 +313,7 @@ const CompetitionList = () => {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Add New Competition</DialogTitle>
+            <DialogTitle></DialogTitle>
           </DialogHeader>
           <CreateCompetition onSuccess={handleCreateDialogClose} />
         </DialogContent>
@@ -321,10 +321,11 @@ const CompetitionList = () => {
 
       {/* Edit Competition Dialog */}
       {editCompetitionId && (
+
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Edit Competition</DialogTitle>
+              <DialogTitle></DialogTitle>
             </DialogHeader>
             <EditCompetition competitionId={editCompetitionId} onSuccess={handleEditDialogClose} />
           </DialogContent>

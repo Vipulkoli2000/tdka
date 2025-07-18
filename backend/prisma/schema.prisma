@@ -41,6 +41,7 @@ model Group{
   age              String    
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  competitions     Competition[]
   @@map("groups")
 }
 
@@ -52,6 +53,6 @@ model Competition{
   lastEntryDate    String
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  groups           Group[]
 }
- 
  
