@@ -41,6 +41,7 @@ import Validate from "@/lib/Handlevalidation";
 interface CompetitionData {
   id: number;
   competitionName: string;
+  maxPlayers: number;
   date: string;
   groups?: string[]; // Array of group IDs
   age?: string; // Legacy field, will be removed
@@ -61,6 +62,9 @@ const competitionFormSchema = z.object({
   competitionName: z.string()
     .min(1, "Competition name is required")
     .max(255, "Competition name must not exceed 255 characters"),
+  maxPlayers: z.number()
+    .min(1, "Max players must be at least 1")
+    .max(1000, "Max players cannot exceed 1000"),
   date: z.string()
     .min(1, "Date is required")
     .max(255, "Date must not exceed 255 characters"),
@@ -133,6 +137,7 @@ const CompetitionForm = ({
     resolver: zodResolver(competitionFormSchema),
     defaultValues: {
       competitionName: "",
+      maxPlayers: "",
       date: "",
       groups: [],
       lastEntryDate: "",
@@ -170,6 +175,7 @@ const CompetitionForm = ({
     if (competitionData && mode === "edit") {
       console.log("Setting form values..."); // Debug log
       form.setValue("competitionName", competitionData.competitionName || "");
+      form.setValue("maxPlayers", competitionData.maxPlayers || 1);
       form.setValue("date", competitionData.date || "");
 
       // Handle groups data - if groups exist use them, otherwise try to convert age to group
@@ -328,19 +334,22 @@ const CompetitionForm = ({
               )}
             />
 
-            {/* Last Entry Date Field */}
+            {/* Max Players Field */}
             <FormField
               control={form.control}
-              name="lastEntryDate"
+              name="maxPlayers"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last Entry Date <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>Max Players <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter last entry date (e.g., YYYY-MM-DD)"
+                      placeholder="Enter maximum number of players"
                       {...field}
                       disabled={isFormLoading}
-                      type="date"
+                      type="number"
+                      min="1"
+                      max="1000"
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -348,6 +357,26 @@ const CompetitionForm = ({
               )}
             />
           </div>
+
+          {/* Last Entry Date Field - Full Width */}
+          <FormField
+            control={form.control}
+            name="lastEntryDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Entry Date <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter last entry date (e.g., YYYY-MM-DD)"
+                    {...field}
+                    disabled={isFormLoading}
+                    type="date"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Groups Field - Multiselect */}
           <FormField

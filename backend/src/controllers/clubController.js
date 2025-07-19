@@ -57,6 +57,7 @@ const getClubs = asyncHandler(async (req, res) => {
           { clubName: { contains: search } },
           { city: { contains: search } },
           { address: { contains: search } },
+          { affiliationNumber: { contains: search } },
         ],
       }
     : {};
@@ -70,6 +71,7 @@ const getClubs = asyncHandler(async (req, res) => {
       select: {
         id: true,
         clubName: true,
+        affiliationNumber: true,
         city: true,
         address: true,
         mobile: true,
@@ -100,6 +102,7 @@ const getClub = asyncHandler(async (req, res) => {
     select: {
       id: true,
       clubName: true,
+      affiliationNumber: true,
       city: true,
       address: true,
       mobile: true,
@@ -116,6 +119,7 @@ const getClub = asyncHandler(async (req, res) => {
 const createClub = asyncHandler(async (req, res) => {
   const schema = z.object({
     clubName: z.string().min(1, "Club name is required").max(255),
+    affiliationNumber: z.string().min(1, "Affiliation number is required").max(255),
     city: z.string().min(1, "City is required").max(255),
     address: z.string().min(1, "Address is required").max(500),
     mobile: z.string().min(1, "Mobile number is required").max(20),
@@ -140,6 +144,7 @@ const createClub = asyncHandler(async (req, res) => {
     const club = await prisma.club.create({ 
       data: {
         clubName: validatedData.clubName,
+        affiliationNumber: validatedData.affiliationNumber,
         city: validatedData.city,
         address: validatedData.address,
         mobile: validatedData.mobile,
@@ -174,6 +179,7 @@ const updateClub = asyncHandler(async (req, res) => {
   const schema = z
     .object({
       clubName: z.string().min(1).max(255).optional(),
+      affiliationNumber: z.string().min(1).max(255).optional(),
       city: z.string().min(1).max(255).optional(),
       address: z.string().min(1).max(500).optional(),
       mobile: z.string().min(1).max(20).optional(),

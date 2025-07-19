@@ -27,6 +27,7 @@ import Validate from "@/lib/Handlevalidation";
 interface ClubData {
   id: number;
   clubName: string;
+  affiliationNumber: string;
   city: string;
   address: string;
   mobile: string;
@@ -40,6 +41,9 @@ const clubFormSchemaBase = z.object({
   clubName: z.string()
     .min(1, "Club name is required")
     .max(255, "Club name must not exceed 255 characters"),
+  affiliationNumber: z.string()
+    .min(1, "Affiliation number is required")
+    .max(255, "Affiliation number must not exceed 255 characters"),
   city: z.string()
     .min(1, "City is required")
     .max(255, "City must not exceed 255 characters"),
@@ -96,7 +100,7 @@ const extractErrorMessage = (error: any): string | undefined => {
   return error?.message;
 };
 
-type ClubFormInputs = z.infer<typeof clubFormSchemaCreate>;
+
 
 interface ClubFormProps {
   mode: "create" | "edit";
@@ -115,10 +119,11 @@ const ClubForm = ({
   const queryClient = useQueryClient();
 
   // Initialize form with Shadcn Form
-  const form = useForm<ClubFormInputs>({
-    resolver: zodResolver(mode === "create" ? clubFormSchemaCreate : clubFormSchemaEdit),
+  const form = useForm<any>({
+    resolver: zodResolver(mode === "create" ? clubFormSchemaCreate : clubFormSchemaEdit) as any,
     defaultValues: {
       clubName: "",
+      affiliationNumber: "",
       city: "",
       address: "",
       mobile: "",
@@ -148,12 +153,16 @@ const ClubForm = ({
     console.log("Club data received:", clubData); // Debug log
     if (clubData && mode === "edit") {
       console.log("Setting form values..."); // Debug log
-      form.setValue("clubName", clubData.clubName || "");
-      form.setValue("city", clubData.city || "");
-      form.setValue("address", clubData.address || "");
-      form.setValue("mobile", clubData.mobile || "");
-      form.setValue("email", clubData.email || "");
-      // Note: We don't set password for security reasons in edit mode
+      form.reset({
+        clubName: clubData.clubName,
+        affiliationNumber: clubData.affiliationNumber,
+        city: clubData.city,
+        address: clubData.address,
+        mobile: clubData.mobile,
+        email: clubData.email,
+        password: "",
+        role: "clubadmin",
+      });
     }
   }, [clubData, mode, form]);
 
@@ -171,7 +180,7 @@ const ClubForm = ({
 
   // Mutation for creating a club
   const createClubMutation = useMutation({
-    mutationFn: (data: ClubFormInputs) => {
+    mutationFn: (data: any) => {
       return post("/clubs", data);
     },
     onSuccess: () => {
@@ -200,7 +209,7 @@ const ClubForm = ({
 
   // Mutation for updating a club
   const updateClubMutation = useMutation({
-    mutationFn: (data: ClubFormInputs) => {
+    mutationFn: (data: any) => {
       return put(`/clubs/${clubId}`, data);
     },
     onSuccess: () => {
@@ -229,7 +238,7 @@ const ClubForm = ({
   });
 
   // Handle form submission
-  const onSubmit = (data: ClubFormInputs) => {
+  const onSubmit = (data: any) => {
     if (mode === "create") {
       createClubMutation.mutate(data);
     } else {
@@ -262,6 +271,25 @@ const ClubForm = ({
                 <FormControl>
                   <Input
                     placeholder="Enter club name"
+                    {...field}
+                    disabled={isFormLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Affiliation Number Field */}
+          <FormField
+            control={form.control}
+            name="affiliationNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Affiliation Number <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter affiliation number"
                     {...field}
                     disabled={isFormLoading}
                   />

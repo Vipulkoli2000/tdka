@@ -195,6 +195,7 @@ const CompetitionList = () => {
                       </span>
                     )}
                   </TableHead>
+                  <TableHead>Max Players</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Age</TableHead>
                   <TableHead>Last Entry Date</TableHead>
@@ -219,6 +220,7 @@ const CompetitionList = () => {
                   data?.competitions?.map((competition: any) => (
                     <TableRow key={competition.id}>
                       <TableCell>{competition.competitionName}</TableCell>
+                      <TableCell>{competition.maxPlayers}</TableCell>
                       <TableCell>{formatDate(competition.date)}</TableCell>
                       <TableCell>{competition.age}</TableCell>
                       <TableCell>{formatDate(competition.lastEntryDate)}</TableCell>

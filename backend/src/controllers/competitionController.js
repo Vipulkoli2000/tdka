@@ -86,6 +86,7 @@ const getCompetitions = asyncHandler(async (req, res) => {
     return {
       id: comp.id,
       competitionName: comp.competitionName,
+      maxPlayers: comp.maxPlayers,
       date: comp.date,
       age: comp.age,
       lastEntryDate: comp.lastEntryDate,
@@ -129,6 +130,7 @@ const getCompetition = asyncHandler(async (req, res) => {
   const responseData = {
     id: competition.id,
     competitionName: competition.competitionName,
+    maxPlayers: competition.maxPlayers,
     date: competition.date,
     age: competition.age,
     lastEntryDate: competition.lastEntryDate,
@@ -143,6 +145,7 @@ const getCompetition = asyncHandler(async (req, res) => {
 const createCompetition = asyncHandler(async (req, res) => {
   const schema = z.object({
     competitionName: z.string().min(1, "Competition name is required").max(255),
+    maxPlayers: z.number().min(1, "Max players must be at least 1").max(1000, "Max players cannot exceed 1000"),
     date: z.string().min(1, "Date is required").max(255),
     groups: z.array(z.string()).min(1, "At least one group must be selected"),
     lastEntryDate: z.string().min(1, "Last entry date is required").max(255),
@@ -196,6 +199,7 @@ const updateCompetition = asyncHandler(async (req, res) => {
   const schema = z
     .object({
       competitionName: z.string().min(1).max(255).optional(),
+      maxPlayers: z.number().min(1, "Max players must be at least 1").max(1000, "Max players cannot exceed 1000").optional(),
       date: z.string().min(1).max(255).optional(),
       groups: z.array(z.string()).min(1, "At least one group must be selected").optional(),
       lastEntryDate: z.string().min(1).max(255).optional(),

@@ -181,6 +181,7 @@ const ClubList = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50 hover:bg-muted/50">
+                  <TableHead>Affiliation Number</TableHead>
                   <TableHead>Club Name</TableHead>
 
                   <TableHead className="w-auto cursor-pointer" onClick={() => handleSort("clubName")}>
@@ -213,6 +214,7 @@ const ClubList = () => {
                 ) : (
                   data?.clubs?.map((club: any) => (
                     <TableRow key={club.id}>
+                      <TableCell>{club.affiliationNumber}</TableCell>
                       <TableCell>{club.clubName}</TableCell>
                       <TableCell>{club.city}</TableCell>
                       <TableCell>{club.mobile}</TableCell>
