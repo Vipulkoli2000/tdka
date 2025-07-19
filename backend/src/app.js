@@ -11,6 +11,7 @@ const userRoutes = require("./routes/users");
 const clubRoutes = require("./routes/club");
 const groupRoutes = require("./routes/group");
 const competitionRoutes = require("./routes/competition");
+const playerRoutes = require("./routes/player");
 const authRoutes = require("./routes/auth");
 const swaggerRouter = require("./swagger");
 
@@ -45,7 +46,7 @@ const corsOptions = {
     }
   },
   credentials: true, // Allow cookies and auth headers
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Origin',
     'X-Requested-With', 
@@ -92,6 +93,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/clubs", clubRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/competitions", competitionRoutes);
+app.use("/api/players", playerRoutes);
  
 app.use(swaggerRouter);
 

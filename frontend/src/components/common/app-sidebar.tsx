@@ -63,11 +63,13 @@ const initialData = {
     },
     clubadmin: {
       projects: [
+      
         {
-          name: "Club",
-          url: "clubs",
+          name: "Player",
+          url: "players",
           icon: UsersRound,
         },
+        
       ],
     },
   },
@@ -156,7 +158,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
              <div className="flex items-center gap-2  justify-between">
              <a
               className="flex items-center gap-2"
-              href="/users"
+              href="#"
               >
                 <img src="/credisphere-logo.svg" alt="CrediSphere logo" className="h-6 w-6" />
                 <span className="text-base font-semibold">{appName}</span>

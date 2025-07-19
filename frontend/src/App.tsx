@@ -19,7 +19,8 @@ import UserList from "@/modules/User/UserList";
 import GroupList from "@/modules/group/GroupList";
 import ClubList from "@/modules/club/ClubList";
 import CompetitionList from "@/modules/competition/CompetitionList";
-  import Profile from "./modules/profile/EditAgency";
+import { PlayerList } from "@/modules/players";
+import Profile from "./modules/profile/EditAgency";
 import Dashboard from "./modules/Dashboard/dashboard";
 import Registerformat from "./modules/Register/register";
 
@@ -102,7 +103,15 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-
+            
+            <Route
+              path="/players"
+              element={
+                <ProtectedRoute>
+                  <PlayerList />
+                </ProtectedRoute>
+              }
+            />
             
             <Route
               path="/registers"
